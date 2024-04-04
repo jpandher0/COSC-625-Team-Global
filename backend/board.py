@@ -50,10 +50,10 @@ class Board(object):
 
     def earnedFreeMove(self, player_num, last_area):
         if player_num == 1 and last_area == P1_STORE:
-            print "Earned free move!"
+            print("Earned free move!")
             return True
         elif player_num == 2 and last_area == P2_STORE:
-            print "Earned free move!"
+            print("Earned free move!")
             return True
         else:
             return False
@@ -87,7 +87,7 @@ class Board(object):
             last_area, last_index)
 
         captured_stones = self.board[opposing_area][opposing_index]
-        print "%d stones captured!" % captured_stones
+        print("%d stones captured!" % captured_stones)
         self.board[last_area][last_index] = 0
         self.board[opposing_area][opposing_index] = 0
         total_gain = captured_stones + 1

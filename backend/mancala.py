@@ -22,7 +22,7 @@ class Match(object):
         self.current_turn = self.player1
 
     def makeMove(self):
-        print self.board.printBoard()
+        print(self.board.printBoard())
         next_move = self.current_turn.getNextMove()
         self.board.board, free_move_earned = self.board.moveStones(self.current_turn.number, next_move)
         if self.checkForWinner():
@@ -45,11 +45,11 @@ class Match(object):
     def checkForWinner(self):
         if set(self.board.board[P1_PITS]) == set([0]):
             self.board.board = self.board.gatherRemaining(self.player2.number)
-            print "Player 1 finished! %s: %d to %s: %d" % (self.player1.name, self.board.board[P1_STORE][0], self.player2.name, self.board.board[P2_STORE][0])
+            print("Player 1 finished! %s: %d to %s: %d" % (self.player1.name, self.board.board[P1_STORE][0], self.player2.name, self.board.board[P2_STORE][0]))
             return True
         elif set(self.board.board[P2_PITS]) == set([0]):
             self.board.board = self.board.gatherRemaining(self.player1.number)
-            print "Player 2 finished! %s: %d to %s: %d" % (self.player1.name, self.board.board[P1_STORE][0], self.player2.name, self.board.board[P2_STORE][0])
+            print("Player 2 finished! %s: %d to %s: %d" % (self.player1.name, self.board.board[P1_STORE][0], self.player2.name, self.board.board[P2_STORE][0]))
             return True
         else:
             return False
@@ -63,7 +63,7 @@ class HumanPlayer(Player):
             self.name = self.getHumanName()
 
     def getHumanName(self):
-        return raw_input("Please input your name: ")
+        return input("Please input your name: ")
 
     def getNextMove(self):
         value = input("Please input your next move (1 to 6): ")
