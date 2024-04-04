@@ -11,5 +11,4 @@ AI_PLAYER = 1
 DEFAULT_TYPE = HUMAN_PLAYER
 
 RANDOM_AI = 0 # purely random
-VECTOR_AI = 1 # optimizes for free turns only considering own side
 DEFAULT_AI = 1
