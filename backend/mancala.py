@@ -69,6 +69,6 @@ class HumanPlayer(Player):
         return int(input("Please input your next move (1 to 6): "))
 
 def reverseIndex(index):
-    rev_index = (range(0, 6))
+    rev_index = list(range(0, 6))
     rev_index.reverse()
     return rev_index[index]
