@@ -1,8 +1,8 @@
-from mancala import Match, HumanPlayer, Player
+from mancala import Match, HumanPlayer, ComputerRandomPlayer
 
 def main():
     print("Welcome to Mancala!")
-    match = Match(player1_type=HumanPlayer, player2_type=HumanPlayer)
+    match = Match(player1_type=HumanPlayer, player2_type=ComputerRandomPlayer)
     match.makeMove()
 
 if __name__ == '__main__':
