@@ -15,7 +15,7 @@ class Board(object):
                        self.board[0][0], self.board[0][1], self.board[0][2],
                        self.board[0][3], self.board[0][4], self.board[0][5])
 
-    def moveStones(self, player_num, start_index):
+    def makeMove(self, player_num, start_index):
         if player_num == 1:
             current_area = P1_PITS
         else:
@@ -43,7 +43,7 @@ class Board(object):
         earned_free_move = True if (player_num == 1 and current_area == P1_STORE) or (player_num == 2 and current_area == P2_STORE) else False
         
         if self.earnedCapture(player_num, current_area, index):
-            self.board = self.processCapture(current_area, index)
+            self.board = self.stealStones(current_area, index)
             
         return self.board, earned_free_move
 
@@ -66,7 +66,7 @@ class Board(object):
         else:
             return False
 
-    def processCapture(self, last_area, last_index):
+    def stealStones(self, last_area, last_index):
         if last_area == P1_PITS:
             destination_store = P1_STORE
         else:
@@ -97,9 +97,9 @@ class Board(object):
         rev_index = list(range(5, -1, -1))
         opposing_index = rev_index[index]
 
-        return opposing_area, opposing_index
+        return opposing_area, opposing_index    
 
-def gatherRemaining(self, player_num):
+    def gatherRemaining(self, player_num):
         if player_num == 1:
             remaining_area = P1_PITS
             destination_store = P1_STORE
@@ -115,14 +115,3 @@ def gatherRemaining(self, player_num):
         self.board[destination_store][0] += remaining_stones
 
         return self.board
-    
-
-
-#    def getScore(self, player_num):
-#        if player_num == 1:
-#            return self.board[1][0]
-#        else:
-#            return self.board[3][0]
-
-#    def getScores(self):
- #       return (self.board[1][0], self.board[3][0])

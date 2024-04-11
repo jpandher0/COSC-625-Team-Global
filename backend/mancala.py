@@ -29,18 +29,18 @@ class HumanPlayer(Player):
 
     def getNextMove(self):
         try:
-            selection = int(input("%s Please input your next move (0 to 5): " % self.name))
-            if (selection < 0) or (selection > 5):
-                print("Input is out of range (0 to 5)")
+            selection = int(input("%s Please input your next move (1 to 6): " % self.name))
+            if (selection < 1) or (selection > 6):
+                print("Input is out of range (1 to 6)")
                 sys.exit()
-            return selection
+            return selection-1
         except ValueError:
             print("Input is not an integer")
             sys.exit()
 
 class ComputerRandomPlayer(Player):
     def __init__(self, number, board, name="computer"):
-        super(ComputerRandomPlayer, self).__init__(number, board)
+        super(ComputerRandomPlayer, self).__init__(number, board, name)
 
     def getNextMove(self):
         selection = randrange(0,6)
@@ -55,20 +55,20 @@ class Match(object):
         self.player2 = self.players[1]
         self.current_turn = self.player1
 
-    def makeMove(self):
+    def checkMove(self):
         print(self.board.printBoard())
         
         next_move = self.current_turn.getNextMove()
-        self.board.board, free_move_earned = self.board.moveStones(self.current_turn.number, next_move)
+        self.board.board, free_move_earned = self.board.makeMove(self.current_turn.number, next_move)
         if self.checkForWinner():
             import sys
             sys.exit()
         if free_move_earned:
             print("Earned free move!")
-            self.makeMove()
+            self.checkMove()
         else:
             self.swapCurrentTurn()
-            self.makeMove()
+            self.checkMove()
 
     def swapCurrentTurn(self):
         if self.current_turn == self.player1:
