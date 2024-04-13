@@ -15,7 +15,7 @@ class Board(object):
                        self.board[0][0], self.board[0][1], self.board[0][2],
                        self.board[0][3], self.board[0][4], self.board[0][5])
 
-    def moveStones(self, player_num, start_index):
+    def makeMove(self, player_num, start_index):
         if player_num == 1:
             current_area = P1_PITS
         else:
@@ -28,6 +28,7 @@ class Board(object):
             try:
                 self.board[current_area][index+1] += 1
                 index += 1
+            #put stones in own mancala, pits, and skip over other players mancalas
             except IndexError:
                 current_area = self.getNextArea(current_area)
                 if player_num == 1 and current_area == P2_STORE:
@@ -39,45 +40,33 @@ class Board(object):
                 index = 0
                 self.board[current_area][index] += 1
 
-        if self.earnedFreeMove(player_num, current_area):
-            earned_free_move = True
-        else:
-            earned_free_move = False
+        earned_free_move = True if (player_num == 1 and current_area == P1_STORE) or (player_num == 2 and current_area == P2_STORE) else False
+        
         if self.earnedCapture(player_num, current_area, index):
-            self.board = self.processCapture(current_area, index)
-
+            self.board = self.stealStones(current_area, index)
+            
         return self.board, earned_free_move
 
-    def earnedFreeMove(self, player_num, last_area):
-        if player_num == 1 and last_area == P1_STORE:
-            print("Earned free move!")
-            return True
-        elif player_num == 2 and last_area == P2_STORE:
-            print("Earned free move!")
-            return True
-        else:
-            return False
+    def getNextArea(self, current_area):
+        if current_area == P1_PITS:
+            return P1_STORE
+        elif current_area == P1_STORE:
+            return P2_PITS
+        elif current_area == P2_PITS:
+            return P2_STORE
+        elif current_area == P2_STORE:
+            return P1_PITS
 
     def earnedCapture(self, player_num, last_area, last_index):
-
         opposing_area, opposing_index = self.getOpposingAreaAndIndex(
             last_area, last_index)
-        if player_num == 1:
-            if not last_area == P1_PITS:
-                return False
-        elif player_num == 2:
-            if not last_area == P2_PITS:
-                return False
-        else:
-            pass
-        if self.board[last_area][last_index] > 1:
-            return False
-        elif self.board[opposing_area][opposing_index] == 0:
-            return False
-        else:
+        if (((player_num == 1 and last_area == P1_PITS) or (player_num == 2 and last_area == P2_PITS)) 
+            and ((self.board[last_area][last_index] <= 1) and (self.board[opposing_area][opposing_index] != 0))):
             return True
+        else:
+            return False
 
-    def processCapture(self, last_area, last_index):
+    def stealStones(self, last_area, last_index):
         if last_area == P1_PITS:
             destination_store = P1_STORE
         else:
@@ -95,28 +84,7 @@ class Board(object):
 
         return self.board
 
-    def gatherRemaining(self, player_num):
-        if player_num == 1:
-            remaining_area = P1_PITS
-            destination_store = P1_STORE
-        elif player_num == 2:
-            remaining_area = P2_PITS
-            destination_store = P2_STORE
-        else:
-            raise Exception("Unknown player.")
-
-        remaining_stones = 0
-        for i in range(6):
-            remaining_stones += self.board[remaining_area][i]
-            self.board[remaining_area][i] = 0
-
-        self.board[destination_store][0] += remaining_stones
-
-        return self.board
-
     def getOpposingAreaAndIndex(self, orig_area, index):
-        from mancala import reverseIndex
-
         if orig_area == P1_PITS:
             opposing_area = P2_PITS
         elif orig_area == P2_PITS:
@@ -126,28 +94,24 @@ class Board(object):
         elif orig_area == P2_STORE:
             opposing_area = P1_STORE
 
+        rev_index = list(range(5, -1, -1))
+        opposing_index = rev_index[index]
 
-        opposing_index = reverseIndex(index)
+        return opposing_area, opposing_index    
 
-        return opposing_area, opposing_index
-
-
-    def getNextArea(self, current_area):
-        if current_area == P1_PITS:
-            return P1_STORE
-        elif current_area == P1_STORE:
-            return P2_PITS
-        elif current_area == P2_PITS:
-            return P2_STORE
-        elif current_area == P2_STORE:
-            return P1_PITS
-
-
-    def getScore(self, player_num):
+    def gatherRemaining(self, player_num):
         if player_num == 1:
-            return self.board[1][0]
-        else:
-            return self.board[3][0]
+            remaining_area = P1_PITS
+            destination_store = P1_STORE
+        elif player_num == 2:
+            remaining_area = P2_PITS
+            destination_store = P2_STORE
 
-    def getScores(self):
-        return (self.board[1][0], self.board[3][0])
+        remaining_stones = 0
+        for i in range(6):
+            remaining_stones += self.board[remaining_area][i]
+            self.board[remaining_area][i] = 0
+
+        self.board[destination_store][0] += remaining_stones
+
+        return self.board
