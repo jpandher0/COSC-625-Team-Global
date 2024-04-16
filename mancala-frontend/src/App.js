@@ -39,20 +39,27 @@ function MancalaBoard() {
         setCurrentPlayer(1 - currentPlayer); // Switch turns
     };
 
-    return (
-        <div className="board">
-            <div className="store">{stores[1]}</div>
-            <div className="pits">
-                {pits.slice(6).map((stones, index) => (
-                    <button key={index + 6} onClick={() => play(index + 6)}>{stones}</button>
-                ))}
-                {pits.slice(0, 6).reverse().map((stones, index) => (
-                    <button key={5 - index} onClick={() => play(5 - index)}>{stones}</button>
-                ))}
-            </div>
-            <div className="store">{stores[0]}</div>
-        </div>
-    );
+    // Inside your MancalaBoard.js (or wherever your game logic resides)
+
+return (
+  <div className="board">
+      <div className="store store-right">{stores[1]}</div>
+      <div className="rows">
+          <div className="row top-row">
+              {pits.slice(6, 12).map((stones, index) => (
+                  <button key={index} onClick={() => play(index + 6)}>{stones}</button>
+              ))}
+          </div>
+          <div className="row bottom-row">
+              {pits.slice(0, 6).reverse().map((stones, index) => (
+                  <button key={index} onClick={() => play(5 - index)}>{stones}</button>
+              ))}
+          </div>
+      </div>
+      <div className="store store-left">{stores[0]}</div>
+  </div>
+);
+
 }
 
 export default MancalaBoard;
