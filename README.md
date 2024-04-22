@@ -25,7 +25,7 @@ mancala-fastapi(python3.7.9):
     # pip install numpy
     # pip install fastapi
 
-#Use Uvicorn to run FastAPI applications. main:app tells Uvicorn to find the object main.py specified in the file app to run as an ASGI application. The --reload flag causes the server to automatically restart when a code change is detected.
+	#Use Uvicorn to run FastAPI applications. main:app tells Uvicorn to find the object main.py specified in the file app to run as an ASGI application. The --reload flag causes the server to automatically restart when a code change is detected.
     uvicorn main:app --reload
 	
 	
