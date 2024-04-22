@@ -32,23 +32,4 @@ mancala-fastapi(python3.7.9):
     uvicorn main:app --reload
 	
 	
-How to run:
 
-Frontend:	
-client:
-
-    cd client
-	npm install
-	#if met wrong using command "npm audit fix"
-	npm run dev
-
-Frontend:
-mancala-fastapi(python3.7.9!!!):
-cd mancala-fastapi
-python -m venv venv
-venv\Scripts\activate
-#ingore: pip install -r requirements.txt
-#pip install uvicorn
-#pip install numpy
-#pip install fastapi
-uvicorn main:app --reload
