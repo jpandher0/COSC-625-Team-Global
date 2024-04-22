@@ -1,0 +1,8 @@
+fastapi~=0.83.0
+gym~=0.26.2
+pydantic~=1.9.2
+numpy~=1.19.5
+dataclasses~=0.8
+# pip install fastapi
+# pip install uvicorn
+# pip install numpy
