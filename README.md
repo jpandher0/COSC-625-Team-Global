@@ -9,6 +9,7 @@ client:
 	npm run dev
 
 mancala-fastapi(python3.7.9):
+    
     cd mancala-fastapi
 	
 	# Create a Python virtual environment named venv in the current directory. A virtual environment is an isolated environment for Python projects which allows you to manage dependencies separately for each project.
