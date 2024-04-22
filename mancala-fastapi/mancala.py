@@ -6,43 +6,45 @@ from typing import List
 
 board = None
 
-#计算下一个索引位置，处理循环过界的情况
+# Calculate the next index position, handle loop overruns
 def next_idx(idx: int):
-    # 计算移动棋子的下一个分度值，手柄在棋盘末端绕一圈
+   # Calculate the next index value of the moving piece, with the handle wrapped around the end of the board
     nidx = idx + 1
     if nidx > 13:
         return 0
     return nidx
 
-#计算对面口袋的索引，用于游戏中的"capture"操作。
+#Calculates the index of the opposite pit, which is used for the "capture" operation in the game.
 def opposite_idx(idx: int):
-    # 计算与给定索引直接相对的索引，用于捕捉石块
+   # Calculate the index directly relative to the given index for capturing stones
     assert idx <= 12
     return 12 - idx
 
 
 @dataclass
 class Rule:
-    # 存储游戏规则的数据类
+   # Data classes that store the rules of the game
 
-    # #这个属性决定了在一次行动中，玩家是否可以多次环绕整个游戏板。
-    # 如果设为True，当玩家在一次行动中有足够的石头继续从板的开始处再次分配时，他们可以继续分配石头直到手中的石头分完。如果设为False，玩家的行动会在达到板的末端时结束，即使手中还有石头
+    # This attribute determines whether the player can wrap around the entire game board multiple times in a single action.
+    # If set to True, when a player has enough stones in an action to continue distributing them again from the beginning of the board, 
+    #they may continue distributing stones until they are finished in their hand. If set to False, a player's action ends when they reach the end of the board, even if there are still stones in their hand
     multi_lap: bool = True
 
-    # 这个属性决定了玩家是否可以捕获对面玩家的石头。
-    # 当设为 True，如果玩家的最后一颗石头落在自己空的口袋中，他们可以将这个口袋对面（对手一侧的对应口袋）的所有石头（如果有的话）捕获到自己的得分区。如果设为 False，则不允许此类捕获动作。
+    # This attribute determines whether a player can capture the opposite player's stone.
+    # When set to True, if a player's last stone lands in their empty pit, they may capture all stones (if any) on the opposite side of this pit (the corresponding pit on their opponent's side) into their scoring area. When set to False, 
+    # such capture actions are not allowed.
     capture_opposite: bool = True
 
-    # 这个属性决定了玩家在自己的得分口袋（也称为“得分孔”或“得分点”）放置最后一颗石头时是否可以继续行动。
-    # 如果设为 True，当玩家的最后一颗石头落在自己的得分口袋中时，他们可以再进行一次行动；如果设为 False，即使最后一颗石头落在得分口袋中，玩家的回合也会结束。
+    # This attribute determines whether or not a player can continue to act when he or she places the last stone in his or her scoring pit (also known as a "scoring hole" or "scoring point").
+    # If set to True, when a player's last stone lands in their scoring pit, they may take another action; if set to False, the player's turn ends even if the last stone lands in the scoring pit.
     continue_on_point: bool = True
 
 
 class Mancala:
-    #初始化卡拉曼加游戏的实例。设置口袋的数量、每个口袋的初始石头数以及游戏规则。
-    def __init__(self, players, pockets: int = 6, initial_stones: int = 4, rule: Rule = Rule()):
-        # 用指定的口袋、每个口袋的初始棋子和规则初始化Mancala棋盘
-        self.__pockets = pockets
+    # Initialize an instance of the Karamanga game. Set the number of pits, the initial number of stones per pit, and the rules of the game.
+    def __init__(self, players, pits: int = 6, initial_stones: int = 4, rule: Rule = Rule()):
+        # Initialize the Mancala board with the specified pits, the initial pieces for each pit, and the rules
+        self.__pits = pits
         self.__initial_stones = initial_stones
         self.rule = rule
         self.human = players[0]
@@ -52,41 +54,43 @@ class Mancala:
         self.human_info = num[0: len(num) // 2]
         self.robot_info = num[len(num) // 2: len(num)]
         self.hand = 0
-        self.selection = [str(i) for i in range(1, self.__pockets + 1)]
+        self.selection = [str(i) for i in range(1, self.__pits + 1)]
         # TODO
         self.turn = 0 # random.randint(0, 1)  # player: 0, ai: 1
         self.end = False
         self.winner = ""
 
-    #初始化游戏板，根据口袋数量和初始石头数来设置板上的石头。
+    # Initialize the game board and set the stones on the board according to the number of pits and the initial number of stones.
     def init_board(self):
-        # 初始化棋盘，在每个口袋中放入初始棋子(每个口袋默认是4颗棋子)
+        # Initialize the board by placing initial pieces in each pit (each pit defaults to 4 pieces)
         global board
-        board = np.zeros(((self.__pockets + 1) * 2,), dtype=np.int)
-        # Player 1 方
-        for i in range(0, self.__pockets):
+        board = np.zeros(((self.__pits + 1) * 2,), dtype=np.int)
+        # Player 1 
+        for i in range(0, self.__pits):
             board[i] = self.__initial_stones
-        # Player 2 方
-        for i in range(self.__pockets + 1, self.__pockets * 2 + 1):
+        # Player 2 
+        for i in range(self.__pits + 1, self.__pits * 2 + 1):
             board[i] = self.__initial_stones
 
-    #从选定的口袋中取出所有石头，并设置该口袋为空。
-    def take_pocket(self, idx: int):
-        # 从指定的口袋中取出所有石头，使该口袋变空
+    # Remove all stones from the selected pit and set that pit to empty.
+    def take_pit(self, idx: int):
+        # Remove all stones from a given pit, making that pit empty.
         """
-        idx: 操纵的口袋
+        idx: Manipulated pits
         num:
         """
-        # 操作逻辑:
-        # self.hand += self.board[idx]：这一行将选定口袋中的石头数加到 self.hand 变量中。self.hand 代表玩家当前手中持有的石头数量，这是进行下一步分配石头时的基础。
-        # self.board[idx] = 0：这一行将选定口袋的石头数设置为 0，即清空该口袋。这是因为所有的石头都已被取出，放入玩家的手中。
+        # Operation Logic:
+        # self.hand += self.board[idx]：
+        # This line adds the number of stones in the selected pit to the self.hand variable. self.hand represents the number of stones currently in the player's hand, which is the basis for the next step in allocating stones.
+        # self.board[idx] = 0：
+        # This line sets the number of stones in the selected pit to 0, i.e. it empties the pit. This is because all the stones have been removed and placed in the player's hand.
         global board
         self.hand += int(board[idx])
         board[idx] = 0
 
-    #在进行移动时，将石头放入指定的口袋。
-    def fill_pocket(self, idx: int, num: int = 1):
-        # 将石块放入指定的口袋，减少手中的石块
+    # When making a move, place the stone in the designated pit.
+    def fill_pit(self, idx: int, num: int = 1):
+        # Reduce the number of stones in your hand by placing them in the designated pits
         assert self.hand > 0 and num <= self.hand
         global board
         board[idx] += num
@@ -94,154 +98,154 @@ class Mancala:
 
     @property
     def _player0_field_range(self):
-        # 代表场上 0 号球员一方的指数范围
-        return range(0, self.__pockets)
+        # Index range representing the side of player 0 on the field
+        return range(0, self.__pits)
 
     @property
     def _player1_field_range(self):
-        # 代表 1 号球员一方的指数范围
-        return range(self.__pockets + 1, self.__pockets * 2 + 1)
+        # Index range representing Player 1's side
+        return range(self.__pits + 1, self.__pits * 2 + 1)
 
     @property
     def _player0_point_index(self):
-        # 0 号球员得分袋的索引
-        return self.__pockets
+        # Index to Player 0's Scoring Bag
+        return self.__pits
 
     @property
     def _player1_point_index(self):
-        # 1 号球员得分袋的索引
-        return self.__pockets * 2 + 1
+        # Index of Player 1's Scoring Bag
+        return self.__pits * 2 + 1
 
     @property
     def _active_player_point_index(self):
-        # 当前在役球员得分袋的索引
+        # Index of currently active players scoring sacks
         return (
             self._player0_point_index if self.turn == 0 else self._player1_point_index
         )
 
-    def is_own_pointpocket(self, idx: int):
-        # 确定给定索引是否是当前玩家的得分(得分口袋)
+    def is_own_pointpit(self, idx: int):
+        # Determine if the given index is the current player's score (score pit)
         if self.turn == 0:
             return idx == 6
         else:
             return idx == 13
 
-    def is_own_fieldpocket(self, idx: int):
-        # 确定给定索引是否在当前球员的场地（非计分）范围内
+    def is_own_fieldpit(self, idx: int):
+        # Determine if a given index is within the current player's field (non-scoring) range
         if self.turn == 0:
             return 0 <= idx < 6
         else:
             return 7 <= idx < 13
 
     def render_cli(self):
-        # 在命令行界面渲染游戏棋盘
-        # 打印顶部边界:这一行打印出棋盘的顶部边界。"====" 是用来表示边界的字符序列，重复的次数由口袋的数量加一决定（加一是为了包括得分口袋）
+        # Rendering the game board in the command line interface
+        # Print top border:This line prints the top border of the board." ====" is the sequence of characters used to represent the border, repeated as many times as the number of pits plus one (plus one to include scoring pits)
         global board
-        print("\n" + "====" * (self.__pockets + 1))
-        # AI 方
-        # 渲染 AI 玩家的棋子分布:这段代码首先打印 AI 玩家的得分口袋中的石头数量（位于棋盘的一端），然后遍历 AI 玩家控制的口袋，从右到左（因为 [::-1] 是反向迭代）打印每个口袋中的石头数量。end=" " 确保打印在同一行。
+        print("\n" + "====" * (self.__pits + 1))
+        # AI Side
+        # Rendering the AI player's piece distribution:This code first prints the number of stones in the AI player's scoring pit (located at one end of the board), then iterates through the pits controlled by the AI player, printing the number of stones in each pit from right to left (since [::-1] is a reverse iteration). end=" " Make sure to print on the same line.
         print(f"[{board[self._player1_point_index]:>2}]", end=" ")
         for i in self._player1_field_range[::-1]:
             print(f"{board[i]:>2}", end=" ")
-        #打印分隔线:这行打印一个分隔线，用来在 AI 玩家和玩家方之间提供视觉上的区分。
-        print("\n" + "----" * (self.__pockets + 1))
-        # 球员方
-        # 渲染玩家的棋子分布:这几行代码打印玩家的棋子分布。首先用四个空格偏移，以对齐与 AI 玩家的得分口袋，然后从左到右打印玩家每个口袋中的石头数量，最后打印玩家的得分口袋。
+        # Print Separator:This line prints a separator line that is used to provide a visual distinction between the AI player and the player's side.
+        print("\n" + "----" * (self.__pits + 1))
+        # players' side
+        # Rendering the player's piece distribution:These lines of code print the player's piece distribution. It starts with a four-space offset to align with the AI player's scoring pits, then prints the number of stones in each of the player's pits from left to right, and finally prints the player's scoring pits.
         print(" " * 4, end=" ")
         for i in self._player0_field_range:
             print(f"{board[i]:>2}", end=" ")
         print(f"[{board[self._player0_point_index]:>2}]", end=" ")
-        # 打印底部边界:和顶部边界相同，这行代码打印出棋盘的底部边界
-        print("\n" + "====" * (self.__pockets + 1))
+        # Print Bottom Boundary: As with the top boundary, this line of code prints out the bottom boundary of the board
+        print("\n" + "====" * (self.__pits + 1))
 
     def show_actions(self):
-        # 显示当前玩家的可用操作
-        # 打印缩进:这行代码的作用是在打印操作前添加四个空格的缩进，end=" " 参数确保后续打印的内容在同一行。这个缩进可以帮助视觉上区分不同的输出部分，使得界面更加整洁。
+        # Displays the available actions for the current player
+        # Print Indentation:This line of code serves to add a four-space indentation before the print operation, and the end=" " parameter ensures that subsequent prints are on the same line. This indentation can help visually distinguish between different parts of the output, making the interface more tidy.
         print(" " * 4, end=" ")
-        # 循环打印操作:这个循环遍历 self.selection 列表，其中包含了代表每个可选操作的字符。{char:>2} 是一个格式化字符串，>2 表示每个字符占用至少两个字符宽的空间，且右对齐。这样做确保了即使在字符宽度不一的情况下，输出也能保持对齐。end=" " 参数再次用来确保所有字符在同一行输出，并且字符之间有空格分隔。
+        # Loop over print operations: This loop iterates over the self.selection list, which contains the characters representing each of the optional operations. {char:>2} is a formatted string, where >2 means that each character occupies a space at least two characters wide and is right-aligned. This ensures that the output remains aligned even if the characters are of different widths. end=" " is again used to ensure that all characters are output on the same line and separated by spaces.
         for char in self.selection:
             print(f"{char:>2}", end=" ")
         print()
 
     def get_sided_all_actions(self):
-        # 根据当前棋手在场上的位置，获取其可能采取的所有行动
+        # Get all the possible moves of the current player according to his position on the field
         if self.turn == 0:
             return list(self._player0_field_range)
         else:
             return list(self._player1_field_range)
 
     def filter_available_actions(self, actions: List[int]) -> List[int]:
-        # 过滤出所有可能的行动。此方法检查每个行动对应的口袋中是否还有石头，只有非空口袋的索引会被返回。
+        # Filters out all possible actions. This method checks if there are still stones in the pit corresponding to each action, and only the index of a non-empty pit is returned.
         return [i for i in actions if board[i] > 0]
 
     # def get_player_action(self):
-    #     # 从命令行输入中获取玩家操作，进行验证，并处理退出操作
+    #     # Get player actions from command line input, validate them, and handle exit actions
     #     while True:
-    #         # 输入请求:这行代码显示提示 "You throw..... > "，并等待玩家输入。玩家的输入将存储在变量 key_input 中。
+    #         # Input Request:This line of code displays the prompt "You throw ..... >" and waits for player input. The player's input will be stored in the variable key_input.
     #         key_input = input("You throw..... > ")
-    #         # 退出检查:如果玩家输入的是 "q"，则 sys.exit() 被调用，这将导致程序立即退出，是一种紧急停止程序的方式。
+    #         # Exit check:If the player enters "q", sys.exit() is called, which causes the program to exit immediately and is an emergency way to stop the program.
     #         if key_input == "q":
     #             sys.exit()
-    #         #输入验证:这里尝试从 self.selection（一个包含有效选择的列表）中找到玩家输入对应的索引，并将其存储在 idx 中。assert idx >= 0 确保 idx 是一个有效的索引，这通常是冗余的，因为如果 key_input 不在 self.selection 中，.index() 方法会抛出一个异常
+    #         # Input validation:Here an attempt is made to find the index corresponding to the player's input from self.selection (a list containing valid choices) and store it in idx. assert idx >= 0 ensures that idx is a valid index, which is usually redundant because if the key_input is not in self.selection, the . index() method will throw an exception
     #         idx = self.selection.index(key_input)
     #         assert idx >= 0
-    #         # 行动有效性检查: 这行代码调用 filter_available_actions 方法（该方法返回所有可能的、有效的行动列表）来检查 idx 是否是一个有效的行动。如果是，该方法返回 idx，表示玩家选择的行动有效，且程序继续执行。
+    #         # Action validity check: This line of code calls the filter_available_actions method (which returns a list of all possible, valid actions) to check if idx is a valid action. If it is, the method returns idx, indicating that the action selected by the player is valid and the program continues to execute.
     #         if idx in self.filter_available_actions(self.get_sided_all_actions()):
     #             return idx
-    #         # 错误反馈:如果玩家选择的口袋是空的（即 idx 不在返回的有效行动列表中），则打印 "Cannot pick from empty pocket"，提醒玩家必须选择一个非空的口袋。
+    #         # Error Feedback:If the player selects a pit that is empty (i.e. the idx is not in the list of valid actions returned), "Cannot pick from empty pit" is printed, reminding the player that they must select a non-empty pit.
     #         else:
-    #             print("Cannot pick from empty pocket")
+    #             print("Cannot pick from empty pit")
 
     def flip_turn(self):
-        # 轮到另一位玩家
+        # It's another player's turn.
         self.turn = 1 if self.turn == 0 else 0
         self.judge_end_condition()
 
-    #执行一个动作，根据当前的手中石头数和游戏规则来决定下一步如何操作。
+    # Perform an action and decide what to do next based on the current number of stones in hand and the rules of the game.
     def take_action(self, idx: int):
-        # 根据所选口袋的索引执行操作；在移动石子时处理游戏规则
-        # 取出石头:首先调用 take_pocket 方法从玩家指定的口袋 idx 中取出所有的石头，并将该口袋清空。
-        self.take_pocket(idx)
-        # 初始化继续轮次的标志:设置 continue_turn 标志为 False。这个标志用来确定玩家是否可以继续下一个动作（如游戏规则允许的情况下）。
+        # Performs actions according to the index of the selected pit; handles the rules of the game when moving the stone
+        # Taking stones:First call the take_pit method to take all the stones from the player specified pit idx and empty that pit.
+        self.take_pit(idx)
+        # Initialize the continue_turn flag:Set the continue_turn flag to False.This flag is used to determine if the player can continue to the next action (if allowed by the game rules).
         continue_turn = False
-        # 分配石头:通过一个循环，根据玩家手中的石头数量（self.hand），在棋盘上逐个口袋地分配这些石头。每次循环都调用 next_idx 函数计算下一个口袋的索引 idx。
+        # Allocating stones:A loop is used to allocate stones on the board, pit by pit, based on the number of stones in the player's hand (self.hand). Each loop calls the next_idx function to compute the index idx of the next pit.
         for _ in range(self.hand):
             idx = next_idx(idx)
-            # 判断是否继续轮次:如果手中最后一颗石头落在了自己的得分口袋中，并且游戏规则 continue_on_point 允许继续行动，则设置 continue_turn 为 True
+            # Determine whether or not to continue the turn: if the last stone in your hand lands in your scoring pit, and the rules of the game continue_on_point allow for continued action, then set continue_turn to True
             if (
                 self.hand == 1
                 and self.rule.continue_on_point
-                and self.is_own_pointpocket(idx)
-                # 当前我在玩，但我没子了，就不要continue_turn，要让给对方
+                and self.is_own_pointpit(idx)
+                # I'm currently playing, but I'm out of tiles, so don't continue_turn, give it to your opponent.
                 and (self.turn == 0 and not all(element == 0 for element in self.human_info[0:len(self.human_info) - 1]) or self.turn == 1 and not all(element == 0 for element in self.robot_info[0:len(self.robot_info) - 1]))
             ):
                 continue_turn = True
-            #判断是否捕获对方石头:如果玩家的最后一颗石头落在一个空口袋上，并且对面口袋有石头（即可以捕获对方的石头），则执行捕获动作，将对方口袋的石头以及自己的最后一颗石头放入自己的得分口袋。
+            # Determining Whether to Capture an Opponent's Stone:If a player's last stone lands on an empty pit and there is a stone in the opposite pit (i.e., the opponent's stone can be captured), the capture action is performed, placing the stone from the opponent's pit, as well as his or her own last stone, into his or her scoring pit.
             if (
                 self.hand == 1
                 and self.rule.capture_opposite
-                and self.is_own_fieldpocket(idx)
+                and self.is_own_fieldpit(idx)
                 and board[idx] == 0
                 and board[opposite_idx(idx)] > 0
             ):
-                self.take_pocket(opposite_idx(idx))
-                self.fill_pocket(self._active_player_point_index, self.hand)
+                self.take_pit(opposite_idx(idx))
+                self.fill_pit(self._active_player_point_index, self.hand)
                 break
-            # 石头正常分配:如果上述特殊条件不成立，就将一颗石头放入当前的口袋 idx 中。
-            self.fill_pocket(idx)
-        #轮次更替:如果不满足继续轮次的条件（即 continue_turn 为 False 或游戏规则不允许多圈分配 multi_lap），则调用 flip_turn 方法更换玩家，结束当前玩家的轮次。
+            # Stone Normal Distribution:If the above special condition does not hold, a stone is placed in the current pit idx.
+            self.fill_pit(idx)
+        # Turn Turnover:If the conditions for continuing the turn are not met (i.e. continue_turn is False or the game rules don't allow multi-lap allocation multi_lap), then the flip_turn method is called to replace the player and end the current player's turn.
         if not (continue_turn and self.rule.multi_lap):
             self.flip_turn()
-        # 轮到对方但是对方没子
+        # It's the other team's turn, but they don't have a son.
         if (self.turn == 0 and all(element == 0 for element in self.human_info[0:len(self.human_info) - 1])
                 or self.turn == 1 and all(element == 0 for element in self.robot_info[0:len(self.robot_info) - 1])):
             self.flip_turn()
 
-    #分别处理人类玩家和AI的行动步骤。
+    #Handle the action steps of the human player and the AI separately.
     def step_human(self, index: int):
         if self.end:
             return
-        # 处理人类玩家的操作，提示并采取人类玩家的操作
+        # Handling human player actions, prompting and taking human player actions
         self.show_actions()
         # if key_input == "q":
         #     sys.exit()
@@ -253,14 +257,14 @@ class Mancala:
             self.human_info = num[0: len(num) // 2]
             self.robot_info = num[len(num) // 2: len(num)]
         else:
-            raise Exception("Cannot pick from empty pocket")
+            raise Exception("Cannot pick from empty pit")
         self.judge_end_condition()
 
-    #分别处理人类玩家和AI的行动步骤。
+    # Handle the action steps of the human player and the AI separately.
     def step_ai(self):
         if self.end:
             return
-        # 处理 AI 玩家的行动，从可能的行动中随机选择
+        # Processes the actions of the AI player, randomly selecting from possible actions
         act = random.choice(self.filter_available_actions(self.get_sided_all_actions()))
         self.take_action(act)
         num = [int(i) for i in board]
@@ -268,18 +272,18 @@ class Mancala:
         self.robot_info = num[len(num) // 2: len(num)]
         self.judge_end_condition()
 
-    #控制游戏的每一步，根据当前轮到的玩家（人类或AI）调用相应的 step 方法。
+    # Controls each step of the game, calling the step method according to the current turn of the player (human or AI).
     # def step(self):
-    #     # 在游戏中前进一步，处理人类和人工智能之间的轮换
+    #     # Take a step forward in the game and deal with rotations between humans and artificial intelligence
     #     print("Board:", ["You", "AI"][self.turn])
     #     if self.turn == 0:
     #         self.step_human()
     #     else:
     #         self.step_ai()
 
-    #判断游戏是否结束，以及谁是赢家。
+    # Determine if the game is over and who the winner is.
     def judge_end_condition(self):
-        # 确定游戏是否结束并宣布获胜者
+        # Determine if the game is over and announce the winner
         if (self.turn == 1 and all(element == 0 for element in self.robot_info[0: len(self.robot_info) - 1])
            or self.turn == 0 and all(element == 0 for element in self.human_info[0: len(self.human_info) - 1])):
             self.end = True
@@ -287,9 +291,9 @@ class Mancala:
             robot_score = self.robot_info[len(self.robot_info) - 1]
             self.winner = 'The game ends in a tie' if human_score == robot_score else f'You ({self.human}) loss!' if human_score < robot_score else f'You ({self.human}) win!'
 
-    #控制整个游戏流程，从开始到结束。
+    #Control the entire flow of the game, from start to finish.
     # def play(self):
-    #     # 控制主游戏循环，直至满足结束条件
+    #     # Controls the main game loop until the end condition is met
     #     while not self.end:
     #         self.render_cli()
     #         self.step()

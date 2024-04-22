@@ -2,31 +2,17 @@ import {Link} from "react-router-dom";
 
 export const About = () => {
     return (
-        <div style={{padding: '30px'}}>
+        <div style={{display: "flex", flexDirection: "column", width: "100%", margin: "auto 400px"}}>
             <Link to="/">
-                <button style={{width: '150px', height: '50px', border: 'none'}}>Back</button>
+                <button style={{width: '200px', height: '60px', border: 'none', borderRadius: '5px', fontSize: "32px"}}>Back</button>
             </Link>
-            <article>
-                <h1>Mancala Instruction</h1>
-                <p>
-                 Equipment:
-                     Mancala board: Consists of 12 smaller pits in two rows of six each, and two larger pits (stores) at either end.
-                     Stones: 48 stones or seeds used as playing pieces.
-                 Setup:
-                    Place 4 stones in each of the 12 smaller pits.
-                Objective:
-                    Collect more stones in your store (the large pit to your right) than your opponent.
-                How to Play:
-                    Turns: Players take turns, starting with one player.
-                    Sowing: On your turn, pick up all the stones in any one of your pits. Dropping one stone in each pit counter-clockwise, including your store but skipping your opponent's store.
-                    Capturing: If the last stone you drop lands in an empty pit on your side and there are stones in the opposite pit, you capture all stones in both pits (yours and the opposite one) and place them in your store.
-                    Extra Turn: If the last stone you drop lands in your store, you get another turn.
-                Ending the Game:
-                    The game ends when all pits on one side of the board are empty.
-                    The player with remaining stones on their side of the board moves all of them to their store.
-                    Count the stones in each store. The player with the most stones wins the game.
-                </p>
-            </article>
+            <h1 style={{display: "flex", margin: "10px auto"}}>Mancala Instrution</h1>
+            <p>
+                Mancala is a traditional board game known for its simple yet strategic gameplay. Each player has a row of six small pits and a larger pit (store) to their right. The game starts with four pieces in each of the smaller pits.
+                Players take turns picking all pieces from one of their pits, then distributing them one-by-one into subsequent pits (including their own store but not their opponent's) in a counterclockwise direction. If the last piece lands in an empty pit on their side, they capture all pieces in the opposite pit, placing them in their store.
+                The game ends when one player's side is empty, with the remaining pieces on the other side going to that player's store. The player with the most pieces in their store at the end is the winner.
+                Key rules include earning an extra turn if the last piece lands in your store, and the strategy of choosing which pit to start from to maximize piece capture or continue playing.
+            </p>
         </div>
     )
 }

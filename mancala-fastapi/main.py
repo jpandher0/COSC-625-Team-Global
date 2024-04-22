@@ -8,7 +8,7 @@ app = FastAPI()
 game = None
 
 
-# 启动游戏
+# Launch the game
 @app.post("/start")
 async def start(items: List[str]):
     global game
@@ -20,13 +20,13 @@ async def start(items: List[str]):
     robot = Player(game.robot, game.turn == 1, game.robot_info)
     mancala = MancalaStatus("", False)
 
-    if game.turn == 0:  # 等待玩家出手
+    if game.turn == 0:  # Waiting for the players to step up
         return {
             "players": [human, robot],
             "gameStatus": mancala
         }
     # TODO
-    # game.step_ai() # AI先出手，之后将结果返回给玩家
+    # game.step_ai() # The AI strikes first and returns the result to the player afterwards
     # game.render_cli()
     # print("Board:", ["Player", "AI"][game.turn])
     return {
@@ -35,11 +35,11 @@ async def start(items: List[str]):
     }
 
 
-# 玩家的移动，更新游戏状态，返回移动后的结果，比如是否轮到对方，游戏是否结束等。
+# The player's move, updating the game state and returning the result of the move, e.g. whether it's the opponent's turn or not, whether the game is over or not.
 @app.get("/move")
 async def move(index: int):
     global game
-    game.step_human(index)  # 玩家出手后将结果返回给玩家，随后前端调用status获取当前状态
+    game.step_human(index)  # Returns the result to the player after the player has taken a shot, followed by a front-end call to status to get the current status
     game.render_cli()
     print("Board:", ["Player", "AI"][game.turn])
 
@@ -52,13 +52,13 @@ async def move(index: int):
     }
 
 
-# 返回当前游戏的状态，包括两边的坑里有多少石子，当前轮到谁等信息
+# Returns the current state of the game, including information on how many stones are in the pits on either side and whose turn it is currently
 @app.get("/status")
 async def status():
     game.render_cli()
     print("Board:", ["Player", "AI"][game.turn])
     if game.turn == 1:
-        game.step_ai()  # 将当前状态返回给前端前，AI先出手，将结果返回给玩家
+        game.step_ai()  # Before returning the current state to the front end, the AI strikes first and returns the result to the player
         game.render_cli()
         print("Board:", ["Player", "AI"][game.turn])
     human = Player(game.human, game.turn == 0, game.human_info)

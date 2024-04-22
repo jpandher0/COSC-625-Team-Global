@@ -48,10 +48,8 @@ export const Pit = (props: Props) => {
     }
 
     return (
-        <button onClick={() => onSubmit()} disabled={!valid} style={{width: "100px", height: "100px", border: "none", borderRadius: "10px"}}>
-            <div>
-                {gameState?.players[player].pits[index]}
-            </div>
+        <button onClick={() => onSubmit()} disabled={!valid} style={{width: "120px", height: "120px", border: "none", borderRadius: "10px", fontSize: "26px"}}>
+            {gameState?.players[player].pits[index]}
         </button>
     )
 }
@@ -63,7 +61,7 @@ export const Kalaha = (props: Props) => {
 
     return (
         <div style={{display: "flex", alignItems: "center"}}>
-            <div style={{width: "100px", height: "250px", borderRadius: "5px", background: "skyblue", padding: "15px"}}>
+            <div style={{width: "150px", height: "300px", borderRadius: "5px", background: "skyblue", padding: "15px"}}>
                 {gameState?.players[player].pits[6]}
             </div>
         </div>
@@ -96,14 +94,15 @@ export const Board = () => {
                     <div style={{display: "flex", gap: "10px 10px"}}>
                         {pitsP2}
                     </div>
-                    <div style={{margin: "auto", color: "red"}}>{gameEnded ? "" : `Turn to:  ${activePlayer} `}</div>
+                    <div style={{margin: "auto", color: "red"}}>{gameEnded ? "" : `Turn to: ${activePlayer}`}</div>
                     <div style={{display: "flex", gap: "10px 10px"}}>
                         {pitsP1}
                     </div>
                 </div>
                 <Kalaha player={0}/>
             </div>
-        </div>)
+        </div>
+    )
 }
 
 export const Play = () => {
@@ -123,39 +122,36 @@ export const Play = () => {
     }
 
     return (
-        <div>
-            <Link to="/">
-                <button style={{width: '150px', height: '50px', border: 'none'}}>Exit</button>
-            </Link>
-            <div style={{padding: '30px'}}>
-                {gameEnded ?
-                    <div style={{display: 'flex', flexDirection: "column", margin: 'auto', width: '60%'}}>
-                        <div style={{margin: "auto"}}>
-                            <div>{winner}</div>
-                            <div>Your Score：{human?.pits[human?.pits.length - 1]}</div>
-                            <div>Computer Score：{robbot?.pits[robbot?.pits.length - 1]}</div>
-                        </div>
-                        <div style={{margin: "auto", marginTop: '30px'}}>
-                            <button onClick={() => onSubmit()} style={{width: '150px', height: '40px', border: "none"}}>Play Again</button>
+        <div style={{margin: "auto", fontSize: "32px"}}>
+            {gameEnded ?
+                <div style={{display: 'flex', flexDirection: "column", margin: 'auto'}}>
+                    <div style={{margin: "auto"}}>
+                        <div style={{margin: "auto auto 40px auto", fontSize: "60px"}}>Mancala</div>
+                        <div style={{margin: "0 auto 40px auto", fontSize: "32px"}}>{winner}</div>
+                        <div>Your Score：{human?.pits[human?.pits.length - 1]}</div>
+                        <div>Computer Score：{robbot?.pits[robbot?.pits.length - 1]}</div>
+                    </div>
+                    <button onClick={() => onSubmit()} style={{margin: "auto", marginTop: '30px', width: '200px', height: '50px', border: "none", fontSize: "26px"}}>Play Agian</button>
+                </div>
+                :
+                <>
+                    <div style={{display: 'flex', justifyContent: 'space-between', margin: 'auto'}}>
+                        <Link to="/">
+                            <button style={{width: '200px', height: '60px', border: 'none', fontSize: "26px"}}>Exit</button>
+                        </Link>
+                        <div style={{}}>
+                            <div>Score</div>
+                            <div>You：{human?.pits[human?.pits.length - 1]}</div>
+                            <div>Computer：{robbot?.pits[robbot?.pits.length - 1]}</div>
                         </div>
                     </div>
-                    :
-                    <>
-                        <div style={{display: 'flex', justifyContent: 'flex-end', margin: 'auto', width: '60%'}}>
-                            <div style={{}}>
-                                <div>Score</div>
-                                <div>You：{human?.pits[human?.pits.length - 1]}</div>
-                                <div>Computer：{robbot?.pits[robbot?.pits.length - 1]}</div>
-                            </div>
-                        </div>
-                        <div style={{display: "flex", flexDirection: "column", width: "100%", height: "80vh"}}>
-                            <h4 style={{margin: "0 auto"}}>{robbot?.name}</h4>
-                            <Board/>
-                            <h4 style={{margin: "0 auto"}}>{human?.name}</h4>
-                        </div>
-                    </>
-                }
-            </div>
+                    <div style={{display: "flex", flexDirection: "column", width: "100%"}}>
+                        <h4 style={{margin: "0 auto"}}>{robbot?.name}</h4>
+                        <Board/>
+                        <h4 style={{margin: "0 auto"}}>{human?.name}</h4>
+                    </div>
+                </>
+            }
         </div>
     )
 };
@@ -178,13 +174,13 @@ export const Start = () => {
     }
 
     return (
-        <div style={{display: "flex", height: '100vh'}}>
+        <div style={{display: "flex", margin: "auto"}}>
             <form style={{margin: 'auto', display: "flex", flexDirection: "column", gap: '10px 10px'}}>
-                <input placeholder={'Player name'} style={{width: "300px", height: "40px", padding: '0 10px'}} value={human} onChange={e => setHuman(e.target.value)}/>
+                <input placeholder={'Player name'} style={{width: "300px", height: "40px", padding: '0 10px', border: 'none', borderRadius: '5px'}} value={human} onChange={e => setHuman(e.target.value)}/>
                 {/*<input placeholder={'AI name'} style={{width: "300px", height: "40px", padding: '0 10px'}} value={robot} onChange={e => setRobot(e.target.value)}/>*/}
                 {
                     valid ? <button
-                        style={{border: "none", background: 'gray', padding: '10px'}}
+                        style={{border: "none", background: 'lightgray', padding: '10px', border: 'none', borderRadius: '10px'}}
                         type="button"
                         onClick={() => onSubmit()}>
                         Start
