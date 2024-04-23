@@ -41,7 +41,7 @@ class Board(object):
                 self.board[current_area][index] += 1
 
         earned_free_move = True if (player_num == 1 and current_area == P1_STORE) or (player_num == 2 and current_area == P2_STORE) else False
-        
+
         if self.earnedCapture(player_num, current_area, index):
             self.board = self.stealStones(current_area, index)
             
@@ -60,7 +60,7 @@ class Board(object):
     def earnedCapture(self, player_num, last_area, last_index):
         opposing_area, opposing_index = self.getOpposingAreaAndIndex(
             last_area, last_index)
-        if (((player_num == 1 and last_area == P1_PITS) or (player_num == 2 and last_area == P2_PITS)) 
+        if (((player_num == 1 and last_area == P1_PITS) or (player_num == 2 and last_area == P2_PITS))
             and ((self.board[last_area][last_index] <= 1) and (self.board[opposing_area][opposing_index] != 0))):
             return True
         else:

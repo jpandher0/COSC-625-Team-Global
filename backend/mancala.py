@@ -28,15 +28,16 @@ class HumanPlayer(Player):
         return input("Please input your name: ")
 
     def getNextMove(self):
-        try:
-            selection = int(input("%s Please input your next move (1 to 6): " % self.name))
-            if (selection < 1) or (selection > 6):
-                print("Input is out of range (1 to 6)")
-                sys.exit()
-            return selection-1
-        except ValueError:
-            print("Input is not an integer")
-            sys.exit()
+        while True:
+            try:
+                selection = int(input("%s, please input your next move (1-6): " % self.name))
+                if (selection < 1) or (selection > 6):
+                    print("INVALID INPUT...please choose 1-6")
+                    continue
+                return selection-1
+            except ValueError:
+                print("Input is not an integer")
+                continue
 
 class ComputerRandomPlayer(Player):
     def __init__(self, number, board, name="computer"):
