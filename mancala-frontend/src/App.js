@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Welcome from "./Welcome";
-import Mancala from "./Mancala";
+import MancalaBoard from "./Mancala";
 import InstructionsPage from "./Instructions";
 import axios from "axios";
+import "./App.css";
+import "./App.css";
 
 function App() {
   const [boardData, setBoardData] = useState(null);
@@ -23,7 +25,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Welcome />} />
-        <Route path="/welcome" element={<Mancala board={boardData} />} />{" "}
+        <Route path="/welcome" element={<MancalaBoard />} />{" "}
         {/* Pass board data to Mancala component */}
         <Route path="/instructions" element={<InstructionsPage />} />
       </Routes>
