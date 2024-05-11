@@ -27,7 +27,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Welcome />} />
         <Route path="/welcome" element={<MancalaBoard />} />{" "}
-        {/* Pass board data to Mancala component */}
         <Route path="/instructions" element={<InstructionsPage />} />
         <Route path="/winLoss" element={<WinLossPage />} />
       </Routes>

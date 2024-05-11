@@ -12,6 +12,7 @@ function MancalaBoard() {
   const [isComputersTurn, setIsComputersTurn] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [earnedFreeMove, setEarnedFreeMove] = useState(false);
+  const [earnedCapture, setEarnedCapture] = useState(false);
   const { search } = useLocation();
   const params = new URLSearchParams(search);
   const name = params.get("name");
@@ -20,9 +21,9 @@ function MancalaBoard() {
   const navigate = useNavigate();
 
   const winLoss = () => {
-    navigate(`/winLoss`, {
-      state: { computerStore, humanStore },
-    });
+    navigate(
+      `/winLoss?computerScore=${computerStore}&humanScore=${humanStore}`
+    );
   };
 
   useEffect(() => {
@@ -30,15 +31,15 @@ function MancalaBoard() {
       setIsComputersTurn(true);
       setTimeout(() => {
         makeComputerMove();
-      }, 1000);
+      }, 5000);
     }
   }, [currentPlayer]);
 
   useEffect(() => {
-    if (earnedFreeMove) {
-      console.log("earned free move");
+    if (currentPlayer === 1 && earnedFreeMove) {
+      makeComputerMove();
     }
-  }, [earnedFreeMove]);
+  }, [currentPlayer, earnedFreeMove]);
 
   useEffect(() => {
     if (gameOver) {
@@ -69,16 +70,16 @@ function MancalaBoard() {
       .post("http://localhost:8000/make_move", moveData)
       .then((response) => {
         console.log(response);
-        const { board, earned_free_move, is_game_over } = response.data;
+        const { board, earned_free_move, earned_capture, is_game_over } =
+          response.data;
         setComputerPits(board[0]);
         setHumanPits(board[2]);
         setComputerStore(board[1]);
         setHumanStore(board[3]);
-        setEarnedFreeMove(earnedFreeMove);
+        setEarnedFreeMove(earned_free_move);
+        setEarnedCapture(earned_capture);
         setGameOver(is_game_over);
-        if (earned_free_move) {
-          console.log("Earned free move!");
-        } else {
+        if (!earned_free_move) {
           setCurrentPlayer(1 - currentPlayer);
         }
       })
@@ -93,6 +94,8 @@ function MancalaBoard() {
       <br></br>
       <div className="mancala-board">
         {isComputersTurn && <div>Computer's Turn...</div>}{" "}
+        {earnedFreeMove && <div>Earned a free move!</div>}
+        {earnedCapture && <div>Earned capture!</div>}
         <div className="pits-row">
           {computerPits &&
             [...computerPits].reverse().map((stones, index) => (

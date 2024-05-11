@@ -42,6 +42,7 @@ class ComputerRandomPlayer(Player):
         return selection
 
     def getNextMoveAI(self, board=None):
+        print("ai computers turn")
         return 0 
 
 class Match(object):
@@ -52,17 +53,25 @@ class Match(object):
             self.board = Board(board)
 
     def checkMove(self, player, index, curr_board):
+        if player == 1:
+            pits = 0 
+        else: 
+            pits = 2
         if index == 10:
             index = computer_player.getNextMove()
+            while (curr_board[pits][index] == 0):
+                index = computer_player.getNextMove()
         elif index == 100:
             index = computer_player.getNextMoveAI()
-        print("index")
-        print(index)
-        updated_board, earned_free_move = self.board.makeMove(player, index, curr_board)
+            while (curr_board[pits][index] == 0):
+                index = 2
+        print("index", index)
+        print("player", player)
+        updated_board, earned_free_move, earned_capture = self.board.makeMove(player, index, curr_board)
         is_game_over, updated_board = self.checkForWinner(player, updated_board)
         print("UPDATED BOARD")
         print(updated_board)
-        return updated_board, earned_free_move, is_game_over 
+        return updated_board, earned_free_move, earned_capture, is_game_over 
 
     def checkForWinner(self, player, curr_board):
         if set(curr_board[P1_PITS]) == set([0]):
