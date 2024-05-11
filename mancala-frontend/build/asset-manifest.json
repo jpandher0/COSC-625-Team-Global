@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/COSC-625-Team-Global/mancala-frontend/static/css/main.cc7663bd.css",
-    "main.js": "/COSC-625-Team-Global/mancala-frontend/static/js/main.2d915096.js",
-    "static/js/453.06054241.chunk.js": "/COSC-625-Team-Global/mancala-frontend/static/js/453.06054241.chunk.js",
-    "index.html": "/COSC-625-Team-Global/mancala-frontend/index.html",
-    "main.cc7663bd.css.map": "/COSC-625-Team-Global/mancala-frontend/static/css/main.cc7663bd.css.map",
-    "main.2d915096.js.map": "/COSC-625-Team-Global/mancala-frontend/static/js/main.2d915096.js.map",
-    "453.06054241.chunk.js.map": "/COSC-625-Team-Global/mancala-frontend/static/js/453.06054241.chunk.js.map"
+    "main.css": "/COSC-625-Team-Global/mancala-frontend/build/static/css/main.cc7663bd.css",
+    "main.js": "/COSC-625-Team-Global/mancala-frontend/build/static/js/main.c5595b35.js",
+    "static/js/453.06054241.chunk.js": "/COSC-625-Team-Global/mancala-frontend/build/static/js/453.06054241.chunk.js",
+    "index.html": "/COSC-625-Team-Global/mancala-frontend/build/index.html",
+    "main.cc7663bd.css.map": "/COSC-625-Team-Global/mancala-frontend/build/static/css/main.cc7663bd.css.map",
+    "main.c5595b35.js.map": "/COSC-625-Team-Global/mancala-frontend/build/static/js/main.c5595b35.js.map",
+    "453.06054241.chunk.js.map": "/COSC-625-Team-Global/mancala-frontend/build/static/js/453.06054241.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.cc7663bd.css",
-    "static/js/main.2d915096.js"
+    "static/js/main.c5595b35.js"
   ]
 }

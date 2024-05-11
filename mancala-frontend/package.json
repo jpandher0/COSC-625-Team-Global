@@ -1,6 +1,6 @@
 {
   "name": "mancala-frontend",
-  "homepage": "https://jpandher0.github.io/COSC-625-Team-Global/mancala-frontend",
+  "homepage": "https://jpandher0.github.io/COSC-625-Team-Global/mancala-frontend/build",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
