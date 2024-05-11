@@ -10,18 +10,6 @@ import "./App.css";
 
 function App() {
   const [boardData, setBoardData] = useState(null);
-
-  //   useEffect(() => {
-  //     axios
-  //       .get("/api/board")
-  //       .then((response) => {
-  //         setBoardData(response.data);
-  //       })
-  //       .catch((error) => {
-  //         console.error("Error fetching board data:", error);
-  //       });
-  //   }, []); // Fetch data only once when the component mounts
-
   return (
     <Router>
       <Routes>

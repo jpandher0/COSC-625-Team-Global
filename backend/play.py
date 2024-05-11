@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from typing import List
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from mancala import Match, HumanPlayer, ComputerRandomPlayer
+from mancala import Match, HumanPlayer, ComputerPlayer
 import uvicorn
 
 app = FastAPI()
@@ -20,17 +20,12 @@ class Move(BaseModel):
     start_index: int
     curr_board: List[List[int]]
 
-# match = Match(player1_type=HumanPlayer, player2_type=ComputerRandomPlayer)
-
 @app.post('/make_move')
 async def checkMove(move: Move):
     player_num = move.player_num
     start_index = move.start_index
     curr_board = move.curr_board
     match = Match(curr_board)
-    # # Make the move on the board
-    # match.board.board, earned_free_move = match.board.makeMove(player_num, start_index)
-    # # Return the updated board state
     board, earned_free_move, earned_capture, is_game_over = match.checkMove(player_num, start_index, curr_board)
     return {"board": board, "earned_free_move": earned_free_move, "earned_capture": earned_capture, "is_game_over": is_game_over}
 

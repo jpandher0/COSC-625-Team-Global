@@ -17,7 +17,6 @@ function MancalaBoard() {
   const params = new URLSearchParams(search);
   const name = params.get("name");
   const computerPlayer = params.get("computerPlayer");
-  const isWin = true;
   const navigate = useNavigate();
 
   const winLoss = () => {
