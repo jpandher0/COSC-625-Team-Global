@@ -38,14 +38,53 @@ class HumanPlayer(Player):
             print("Input is not an integer")
             sys.exit()
 
-class ComputerRandomPlayer(Player):
+class ComputerMinimaxPlayer(Player):
     def __init__(self, number, board, name="computer"):
-        super(ComputerRandomPlayer, self).__init__(number, board, name)
+        super(ComputerMinimaxPlayer, self).__init__(number, board, name)
+
+    def evaluate(self, board):
+        # Basic evaluation: difference in store counts
+        return board[P1_STORE][0] - board[P2_STORE][0] if self.number == 1 else board[P2_STORE][0] - board[P1_STORE][0]
+
+    def simulate_move(self, board, player_number, move):
+        # Simulates a move and returns the new board state and whether a free move was earned
+        new_board, free_move = board.makeMove(player_number, move)
+        return new_board, free_move
+
+    def minimax(self, board, depth, is_maximizing_player):
+        if depth == 0 or self.checkForWinner():
+            return self.evaluate(board)
+
+        if is_maximizing_player:
+            best_value = -sys.maxsize
+            for move in range(6):  # Assuming 6 pits per player
+                if board[self.number - 1][move] > 0:  # Only consider valid moves
+                    new_board, free_move = self.simulate_move(board, self.number, move)
+                    value = self.minimax(new_board, depth - 1, not free_move)
+                    best_value = max(best_value, value)
+            return best_value
+        else:
+            best_value = sys.maxsize
+            opponent_number = 2 if self.number == 1 else 1
+            for move in range(6):  # Assuming 6 pits per player
+                if board[opponent_number - 1][move] > 0:  # Only consider valid moves
+                    new_board, free_move = self.simulate_move(board, opponent_number, move)
+                    value = self.minimax(new_board, depth - 1, free_move)
+                    best_value = min(best_value, value)
+            return best_value
 
     def getNextMove(self):
-        selection = randrange(0,6)
-        print(selection)
-        return selection
+        best_move = None
+        best_value = -sys.maxsize
+        for move in range(6):
+            if self.board.board[self.number - 1][move] > 0:  # Ensure the pit is not empty
+                simulated_board, free_move = self.simulate_move(self.board.board, self.number, move)
+                value = self.minimax(simulated_board, 3, not free_move)  # Depth set to 3 for example
+                if value > best_value:
+                    best_value = value
+                    best_move = move
+        print(f"Computer selects pit {best_move + 1}")
+        return best_move
 
 class Match(object):
     def __init__(self, player1_type=Player, player2_type=Player):
