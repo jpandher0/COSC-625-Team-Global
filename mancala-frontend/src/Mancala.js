@@ -66,7 +66,7 @@ function MancalaBoard() {
     };
     console.log(moveData);
     axios
-      .post("https://be-1-rfml.onrender.com/make_move", moveData)
+      .post("http://localhost:8000/make_move", moveData)
       .then((response) => {
         console.log(response);
         const { board, earned_free_move, earned_capture, is_game_over } =
