@@ -1,13 +1,16 @@
-from constants import DEFAULT_NAME, P1_PITS, P2_PITS, P1_STORE, P2_STORE
 from board import Board
 from random import randrange
 import sys
+import copy
+
+P1_PITS = 0
+P1_STORE = 1
+P2_PITS = 2
+P2_STORE = 3
 
 class Player(object):
-    def __init__(self, number=None, board=None, name=DEFAULT_NAME):
+    def __init__(self, name="placeholderName"):
         self.name = name
-        self.number = number
-        self.board = board
 
     def __str__(self):
         return "Player: %s" % self.name
@@ -15,17 +18,9 @@ class Player(object):
     def get_name(self):
         return self.name
 
-
 class HumanPlayer(Player):
-    def __init__(self, number, board, name=None):
-        super(HumanPlayer, self).__init__(number, board)
-        if name:
-            self.name = name
-        else:
-            self.name = self.getHumanName()
-
-    def getHumanName(self):
-        return input("Please input your name: ")
+    def __init__(self, number, board, name="HUMAN_NAME"):
+        super(HumanPlayer, self).__init__(number, board, name)
 
     def getNextMove(self):
         try:
@@ -38,55 +33,97 @@ class HumanPlayer(Player):
             print("Input is not an integer")
             sys.exit()
 
-class ComputerRandomPlayer(Player):
-    def __init__(self, number, board, name="computer"):
-        super(ComputerRandomPlayer, self).__init__(number, board, name)
+class ComputerPlayer(Player):        
+    def __init__(self, board=None, name="COMPUTER_NAME"):
+        super(ComputerPlayer, self).__init__(name)
+        if board is None:
+            self.board = Board()  
+        else:
+            self.board = Board(board)
 
     def getNextMove(self):
         selection = randrange(0,6)
-        print(selection)
         return selection
 
+    def getNextMoveAI(self, player, board=None):
+        best_move = None
+        best_value = -sys.maxsize
+        for move in range(6):
+            if board[player- 1][move] > 0:  
+                simulated_board, free_move = self.simulate_move(board, player, move)
+                value = self.minimax(player, simulated_board, 3, not free_move) 
+                if value > best_value:
+                    best_value = value
+                    best_move = move
+        return best_move
+
+    def simulate_move(self, board, player_number, move):
+        new_board, free_move, earned_capture = self.board.makeMove(player_number, move, board)
+        return new_board, free_move
+
+    def minimax(self, player, board, depth, is_maximizing_player):
+        if player == 1:
+            pits = 0
+        else: 
+            pits = 2
+        isWinner, currBoard = match.checkForWinner(player, board)
+        if depth == 0 or isWinner:
+            return self.evaluate(player, board)
+
+        if is_maximizing_player:
+            best_value = -sys.maxsize
+            for move in range(6): 
+                if board[pits][move] > 0:  
+                    new_board, free_move = self.simulate_move(board, player, move)
+                    value = self.minimax(player, new_board, depth - 1, not free_move)
+                    best_value = max(best_value, value)
+            return best_value
+        else:
+            best_value = sys.maxsize
+            opponent_number = 2 if player == 1 else 0
+            opposite_player = 0 if player == 1 else 1
+            for move in range(6):  
+                if board[opponent_number][move] > 0:  
+                    new_board, free_move = self.simulate_move(board, opposite_player, move)
+                    value = self.minimax(opposite_player, new_board, depth - 1, free_move)
+                    best_value = min(best_value, value)
+            return best_value
+
+    def evaluate(self, player, board):
+        return board[P1_STORE][0] - board[P2_STORE][0] if player == 1 else board[P2_STORE][0] - board[P1_STORE][0]
+
 class Match(object):
-    def __init__(self, player1_type=Player, player2_type=Player):
-        self.board = Board()
-        self.players = [player1_type(1, self.board), player2_type(2, self.board)]
-        self.player1 = self.players[0]
-        self.player2 = self.players[1]
-        self.current_turn = self.player1
-
-    def checkMove(self):
-        print(self.board.printBoard())
-        
-        next_move = self.current_turn.getNextMove()
-        self.board.board, free_move_earned = self.board.makeMove(self.current_turn.number, next_move)
-        if self.checkForWinner():
-            import sys
-            sys.exit()
-        if free_move_earned:
-            print("Earned free move!")
-            self.checkMove()
+    def __init__(self, board=None):
+        if board is None:
+            self.board = Board()  
         else:
-            self.swapCurrentTurn()
-            self.checkMove()
+            self.board = Board(board)
 
-    def swapCurrentTurn(self):
-        if self.current_turn == self.player1:
-            self.current_turn = self.player2
-            return self.player2
-        else:
-            self.current_turn = self.player1
-            return self.player1
+    def checkMove(self, player, index, curr_board):
+        deepCopyOfBoardForAI = copy.deepcopy(curr_board)
+        if player == 1:
+            pits = 0 
+        else: 
+            pits = 2
+        if index == 10:
+            index = computer_player.getNextMove()
+            while (deepCopyOfBoardForAI[pits][index] == 0):
+                index = computer_player.getNextMove()
+        elif index == 100:
+            index = computer_player.getNextMoveAI(player, deepCopyOfBoardForAI)
+        updated_board, earned_free_move, earned_capture = self.board.makeMove(player, index, curr_board)
+        is_game_over, updated_board = self.checkForWinner(player, updated_board)
+        return updated_board, earned_free_move, earned_capture, is_game_over 
 
-    def checkForWinner(self):
-        if set(self.board.board[P1_PITS]) == set([0]):
-            self.board.board = self.board.gatherRemaining(self.player2.number)
-            print("Player 1 wins! %s: %d to %s: %d\n" % (self.player1.name, self.board.board[P1_STORE][0], self.player2.name, self.board.board[P2_STORE][0]))
-            return True
-        elif set(self.board.board[P2_PITS]) == set([0]):
-            self.board.board = self.board.gatherRemaining(self.player1.number)
-            print("Player 2 wins! %s: %d to %s: %d\n" % (self.player1.name, self.board.board[P1_STORE][0], self.player2.name, self.board.board[P2_STORE][0]))
-            return True
+    def checkForWinner(self, player, curr_board):
+        if set(curr_board[P1_PITS]) == set([0]):
+            curr_board = self.board.gatherRemaining(player, curr_board)
+            return True, curr_board
+        elif set(curr_board[P2_PITS]) == set([0]):
+            curr_board = self.board.gatherRemaining(player, curr_board)
+            return True, curr_board
         else:
-            return False
+            return False, curr_board
     
+computer_player = ComputerPlayer()
+match = Match()
